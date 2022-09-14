@@ -1,19 +1,19 @@
 import json
-from csv import reader
+# from csv import reader
 
 
-city_aos = []
-
-with open("/Users/wgfarrell/code/workout-counter/src/main/resources/city-ao.txt", "r") as read_obj:
-    csv_reader = reader(read_obj)
-
-    for row in csv_reader:
-        city_aos.append(row[0])
+# city_aos = []
+#
+# with open("/Users/wgfarrell/code/workout-counter/src/main/resources/city-ao.txt", "r") as read_obj:
+#     csv_reader = reader(read_obj)
+#
+#     for row in csv_reader:
+#         city_aos.append(row[0])
 
 # print(city_aos)
-with open('/Users/wgfarrell/beatdowns_202208021340.json', 'r') as f:
+with open('/Users/wgfarrell/beatdowns_sept_13.json', 'r') as f:
     data = json.load(f)
-    with open('src/main/resources/second_city_filtered_single_line_beatdown.json', "a") as f_2:
+    with open('src/main/resources/sept_13_single_line_beatdown.json', "a") as f_2:
 
         beatdowns = data["beatdowns"]
         count = 0

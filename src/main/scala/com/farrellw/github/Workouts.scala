@@ -18,7 +18,7 @@ object Workouts {
 
   def initAoList: Option[Map[String, String]] = {
     if(aoList.isEmpty) {
-      val filesource = Source.fromFile("/Users/wgfarrell/code/workout-counter/src/main/resources/city-ao.txt")
+      val filesource = Source.fromResource("city-ao.txt")
       val lines = filesource.getLines().map(_.split(",")).toList.map(w => (w(0), w(1))).toMap
       filesource.close()
 
@@ -31,7 +31,7 @@ object Workouts {
 
   def initAnotherWorkoutDatastore: Option[WorkoutList] = {
     if (workoutList.isEmpty) {
-      val filesource = Source.fromFile("/Users/wgfarrell/code/workout-counter/src/main/resources/all_single_line_excercises.txt")
+      val filesource = Source.fromResource("all_single_line_excercises.txt")
       val lines = filesource.getLines().map(_.split(",")).toList.sortBy(_.length).map(w => Word(w(0).toLowerCase, valid = true, w(0).toLowerCase()))
       filesource.close()
 
@@ -52,7 +52,7 @@ object Workouts {
 
   def initWorkoutDatastore: Option[WorkoutMap] = {
     if (workoutMap.isEmpty) {
-      val filesource = Source.fromFile("/Users/wgfarrell/code/workout-counter/src/main/resources/invalid-words.txt")
+      val filesource = Source.fromResource("invalid-words.txt")
       val lines = filesource.getLines().toList.map(_.split(","))
       filesource.close()
 

@@ -21,7 +21,6 @@ class CloudFunction extends BackgroundFunction[Message] {
   def everything(): Unit = {
     import collection.JavaConverters._
 
-    LOGGER.info("Starting function")
     val conn = DriverManager.getConnection(sys.env("CONNECTION_URL"));
 
     val today = java.time.LocalDate.now
@@ -35,7 +34,6 @@ class CloudFunction extends BackgroundFunction[Message] {
     val lb = new ListBuffer[BbRecord]
 
     while (rs.next()) {
-      LOGGER.info("Uh do I even hit this")
       val aoId = rs.getString(1)
       val bdDate = rs.getString(2)
       val qUserId = rs.getString(3)
@@ -51,10 +49,6 @@ class CloudFunction extends BackgroundFunction[Message] {
     // Retrieve all records
     //https://stackoverflow.com/questions/73683270/named-parameter-type-for-array-of-struct-in-biqquery
     val result = myThing(lb.toList)
-    //    val tabledFormattedResult = result.map(r => s"('${r.ao_id}', '${r.bd_date}', '${r.q_user_id}', ${r.wordCount}, ${r.unknownWords}, ${r.backblast})").mkString(",")
-    //    case class BbOutput(ao_id: String, bd_date: String, q_user_id: String, timestamp: Option[String], coq_user_id: Option[String], pax_count: Option[Int], backblast: String, fngs: Option[String], fng_count: Option[Int], year: Option[Int], month: Option[Int], day: Option[Int], wordCount: List[WordCount], unknownWords: Option[String])
-    LOGGER.info("About to print out result.toString")
-    LOGGER.info(result.toString())
 
     rs.close()
     stmt.close()
@@ -83,22 +77,17 @@ class CloudFunction extends BackgroundFunction[Message] {
       val aoId = row.get("ao_id").getStringValue
       val date = row.get("bd_date").getStringValue
       val qUserId = row.get("q_user_id")
-      LOGGER.info(aoId)
-      LOGGER.info(date)
       myPrimaryKeys.append(aoId + date + qUserId)
     })
 
-    
-    LOGGER.info(results.toString)
-    LOGGER.info(myPrimaryKeys.toString())
+
     val filteredToEnter = result.filter(x => !myPrimaryKeys.contains(x.ao_id + x.bd_date + x.q_user_id))
-    LOGGER.info(filteredToEnter.toString())
 
     if (filteredToEnter.nonEmpty) {
       val insertAllRequest = filteredToEnter.map(fte => {
-        val nestedWordCount = fte.wordCount.map(wc => Map[String, Int](wc.name -> wc.count))
+        val nestedWordCount = fte.wordCount.map(wc => Map[String, Any]("name" -> wc.name, "count" -> wc.count).asJava).asJava
 
-        Map[String, Any]("ao_id" -> fte.ao_id, "bd_date" -> fte.bd_date, "q_user_id" -> fte.q_user_id, "timestamp" -> fte.timestamp, "backblast" -> fte.backblast, "unknownWord" -> fte.unknownWords, "wordCount" -> nestedWordCount)
+        Map[String, Any]("ao_id" -> fte.ao_id, "bd_date" -> fte.bd_date, "q_user_id" -> fte.q_user_id, "backblast" -> fte.backblast, "unknownWords" -> fte.unknownWords.getOrElse(""), "wordCount" -> nestedWordCount)
       }).foldLeft(InsertAllRequest.newBuilder("workout_with_tagged_words", "city-tagged-exercises"))((agg, next) => {
         agg.addRow(next.asJava)
       }).build()
@@ -106,9 +95,11 @@ class CloudFunction extends BackgroundFunction[Message] {
       val response = bigquery.insertAll(insertAllRequest)
 
       if (response.hasErrors) {
-        LOGGER.info("FUCK we had errors")
+        response.getInsertErrors.values().forEach(e => {
+          LOGGER.info(e.toString)
+        })
       } else {
-        LOGGER.info("Clean as a whistle")
+        LOGGER.info("Success")
       }
     } else {
       LOGGER.info("Nothing new to add")

@@ -1,6 +1,6 @@
 package com.farrellw.github
 
-import com.farrellw.github.Workouts.{getAOList, getWorkoutList, getWorkoutMap}
+import com.farrellw.github.Workouts.{getWorkoutList, getWorkoutMap}
 import org.apache.log4j.Logger
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types.{IntegerType, StringType, StructType}
@@ -10,13 +10,8 @@ import org.apache.spark.sql.types.{IntegerType, StringType, StructType}
  */
 object WorkoutCounter extends App {
   case class BbRecord(ao_id: String, bd_date: String, q_user_id: String, timestamp: Option[String], coq_user_id: Option[String], pax_count: Option[Int], backblast: String, fngs: Option[String], fng_count: Option[Int])
-
-  case class BbCleaned(ao_id: String, bd_date: String, q_user_id: String, timestamp: Option[String], coq_user_id: Option[String], pax_count: Option[Int], backblast: String, fngs: Option[String], fng_count: Option[Int], year: Option[Int], month: Option[Int], day: Option[Int], wordCount: Map[String, Int])
-
-  case class BbEnriched(ao_id: String, bd_date: String, q_user_id: String, timestamp: Option[String], coq_user_id: Option[String], pax_count: Option[Int], backblast: String, fngs: Option[String], fng_count: Option[Int], year: Option[Int], month: Option[Int], day: Option[Int], wordCount: Option[Map[String, Int]], unknownWords: Option[String])
-
   case class WordCount(name: String, count: Int)
-  case class BbOutput(ao_name: String, bd_date: String, q_user_id: String, timestamp: Option[String], coq_user_id: Option[String], pax_count: Option[Int], backblast: String, fngs: Option[String], fng_count: Option[Int], year: Option[Int], month: Option[Int], day: Option[Int], wordCount: List[WordCount], unknownWords: Option[String])
+  case class BbOutput(ao_id: String, bd_date: String, q_user_id: String, timestamp: Option[String], coq_user_id: Option[String], pax_count: Option[Int], backblast: String, fngs: Option[String], fng_count: Option[Int], year: Option[Int], month: Option[Int], day: Option[Int], wordCount: List[WordCount], unknownWords: Option[String])
 
   lazy val logger: Logger = Logger.getLogger(this.getClass)
   val jobName = "WorkoutCounterApp"
@@ -38,14 +33,13 @@ object WorkoutCounter extends App {
 
   import spark.implicits._
 
-  val df = spark.read.schema(schema).json("/Users/wgfarrell/code/workout-counter/src/main/resources/second_city_filtered_single_line_beatdown.json").as[BbRecord]
+  val df = spark.read.schema(schema).json("/Users/wgfarrell/code/workout-counter/src/main/resources/sept_13_single_line_beatdown.json").as[BbRecord]
 
   def countOccurrences(src: String, tgt: String): Int =
     src.sliding(tgt.length).count(window => window == tgt)
 
   val slowDf = df.map(bb => {
     val workoutList = getWorkoutList.get
-    val aoMap = getAOList.get
 
     val wordCount = Map[String, Int]()
 
