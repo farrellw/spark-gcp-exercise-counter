@@ -1,12 +1,13 @@
 # Workout Counter
-
-## Description
+Takes F3 Workout Data and Roughly Counts the amount of each workout
 
 ## Architecture Diagram
+[Architecture Diagram](WorkoutCounter.drawio.png)
 
 ## Relevant Links
+[]
 
 ## Tools
 
 ## Todo
-[TODO](./TODO.md)
+- Enable Research to Unknown Words
