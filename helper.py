@@ -11,23 +11,22 @@ import json
 #         city_aos.append(row[0])
 
 # print(city_aos)
-with open('/Users/wgfarrell/beatdowns_sept_13.json', 'r') as f:
+with open('new_city_beatdowns.json', 'r') as f:
     data = json.load(f)
-    with open('src/main/resources/sept_13_single_line_beatdown.json', "a") as f_2:
+    with open('src/main/resources/new_city_backfilled_single_line.txt', "a") as f_2:
 
         beatdowns = data["beatdowns"]
         count = 0
         for bd in beatdowns:
-            # if bd["ao_id"] in city_aos:
             f_2.write(json.dumps(bd))
             f_2.write("\n")
 
         f_2.close()
     f.close()
 
-# with open('/Users/wgfarrell/code/workout-counter/src/main/resources/workout-data.json', 'r') as f:
+# with open('/Users/wgfarrell/code/workout-counter/beatdowns_city_aos_sept_28.json', 'r') as f:
 #     data = json.load(f)
-#     with open('src/main/resources/all_single_line_excercises.txt', "a") as f_2:
+#     with open('src/main/resources/bd_city_aos_single_line.txt', "a") as f_2:
 #
 #         beatdowns = data["data"]
 #         count = 0

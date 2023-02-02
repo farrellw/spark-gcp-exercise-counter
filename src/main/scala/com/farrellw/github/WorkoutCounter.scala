@@ -33,7 +33,7 @@ object WorkoutCounter extends App {
 
   import spark.implicits._
 
-  val df = spark.read.schema(schema).json("/Users/wgfarrell/code/workout-counter/src/main/resources/sept_13_single_line_beatdown.json").as[BbRecord]
+  val df = spark.read.schema(schema).json("/Users/wgfarrell/code/workout-counter/src/main/resources/new_city_backfilled_single_line.txt").as[BbRecord]
 
   def countOccurrences(src: String, tgt: String): Int =
     src.sliding(tgt.length).count(window => window == tgt)
@@ -73,8 +73,7 @@ object WorkoutCounter extends App {
       WordCount(name = y._1, count = y._2)}), Some(leftOver))
   })
 
-  slowDf.write.format("json").save("secondEnrichedBd")
-//  slowDf.flatMap(_.wordCount.getOrElse(Map()).keys).distinct().coalesce(1).write.format("csv").save("allExcercises")
+  slowDf.write.format("json").save("backfill-enriched-city-bd")
 
   spark.close()
 
