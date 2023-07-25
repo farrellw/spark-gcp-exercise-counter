@@ -32,7 +32,7 @@ object Workouts {
   def initAnotherWorkoutDatastore: Option[WorkoutList] = {
     if (workoutList.isEmpty) {
       val filesource = Source.fromResource("all_single_line_excercises.txt")
-      val lines = filesource.getLines().map(_.split(",")).toList.sortBy(_.length).map(w => Word(w(0).toLowerCase, valid = true, w(0).toLowerCase()))
+      val lines = filesource.getLines().map(_.split(",")).toList.sortBy(_.length).map(w => Word(w(0).toLowerCase, valid = true, w.lift(2).getOrElse(w(0)).toLowerCase()))
       filesource.close()
 
       workoutList = Some(lines)

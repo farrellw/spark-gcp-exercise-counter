@@ -29,10 +29,15 @@ class CloudFunction extends BackgroundFunction[Message] {
    val threePrevious = today.minusDays(4)
    val dateFormatted = threePrevious.toString
 
+   val tomorrow = java.time.LocalDate.now
+   val twoAfter = today.plusDays(2)
+   val dateFormattedAfter = twoAfter.toString
+
+
    LOGGER.info("Reading bb from " + dateFormatted)
    val stmt = conn.createStatement()
-   val rs = stmt.executeQuery("SELECT * FROM beatdowns WHERE bd_date > '" + dateFormatted + "'")
-
+   val rs = stmt.executeQuery("SELECT * FROM beatdowns WHERE bd_date > '" + dateFormatted + "' AND bd_date < '" + dateFormattedAfter + "'")
+   // val rs = stmt.executeQuery("SELECT * FROM beatdowns WHERE bd_date > '2023-05-13' AND bd_date < '2023-05-30'")
    val lb = new ListBuffer[BbRecord]
 
    while (rs.next()) {
